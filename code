@@ -1,0 +1,69 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+long long dp[20][2520][2];
+
+long long getDigits(long long x, vector <int> &digit)
+{
+    while (x)
+    {
+        digit.push_back(x%10);
+        x /= 10;
+    }
+}
+
+long long F(int remainder, int mod, int tight, vector<int>&digit)
+{
+    if(remainder==0)
+    {
+        for(int i=0;i<digit.size();i++)
+        {
+            if(mod%digit[i]>0)
+            {
+                return 0;
+            }
+        }
+        return 1;
+    }
+    if(dp[remainder][mod][tight]!=-1&&tight!=1)
+    {
+        return dp[remainder][mod][tight];
+    }
+    long long ret=0;
+    int k=(tight)? digit[remainder] : 9;
+    for(int i=0;i<=k;i++)
+    {
+        int newTight = (digit[remainder] == i)? tight : 0;
+        digit.push_back(i);
+        ret+=F(remainder-1,(mod*10+k)%2520,newTight,digit);
+        digit.pop_back();
+    }
+    if (!tight)
+        dp[remainder][mod][tight] = ret;
+
+    return ret;
+}
+
+int rangeF(int a, int b)
+{
+    memset(dp,-1,sizeof dp);
+    vector<int>digitA;
+    getDigits(a-1,digitA);
+    long long ans1 = F(digitA.size()-1, 0, 1, digitA);
+    vector<int>digitB;
+    getDigits(b,digitB);
+    long long ans2 = F(digitB.size()-1, 0, 1, digitB);
+    return (ans2-ans1);
+}
+
+int main()
+{
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        long long a,b;
+        cin>>a>>b;
+        cout<<rangeF(a,b);
+    }
+}
